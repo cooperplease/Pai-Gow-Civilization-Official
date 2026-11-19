@@ -6,9 +6,11 @@ using UnityEngine;
 public class TriggerEventSystem
 {
     Dictionary<String, List<Trigger>> triggers;
+    private Func<Task> StateBasedActions;
     
-    public TriggerEventSystem()
+    public TriggerEventSystem(Func<Task> stateBasedActions)
     {
+        StateBasedActions = stateBasedActions;
         triggers = new Dictionary<string, List<Trigger>>();
     }
 
@@ -44,6 +46,8 @@ public class TriggerEventSystem
         {
             Debug.Log(eventName+ " triggered with 0 listeners");
         }
+
+        await StateBasedActions();
     }
 }
 

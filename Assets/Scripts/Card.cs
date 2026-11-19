@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Keywords { FLASH, HASTE, FLYING, VIGILANCE}
+public enum Keywords { FLASH, HASTE, FLYING, VIGILANCE, INDESTRUCTABLE}
 public enum FoilTreatment {REGULAR, FOIL, ULTRAFOIL}
 
 public class CardData
@@ -68,6 +68,14 @@ public class CardState
         damage = 0;
     }
 
+    public void Reset()
+    {
+        tapped = false;
+        declaredAttacker = false;
+        damage = 0;
+        blockingTarget = null;
+    }
+
     public void DeclareAttacker()
     {
         declaredAttacker = true;
@@ -87,6 +95,7 @@ public class CardState
     public void ChangeZone(CardZone newZone)
     {
         zone = newZone;
+        summoningSick = true;
     }
 
     public void TakeDamage(int damage)

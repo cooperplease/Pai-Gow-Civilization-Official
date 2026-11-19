@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -85,6 +86,8 @@ public class CardGameManager
 
 public class RoundManager
 {
+    bool roundOver = false;
+    CardPlayer winner;
     CardPlayer player1;
     CardPlayer player2;
     
@@ -103,7 +106,7 @@ public class RoundManager
         this.activePlayer = activePlayer;
         this.player1Deck = player1Deck;
         this.player2Deck = player2Deck;
-        triggerEventSystem = new TriggerEventSystem();
+        triggerEventSystem = new TriggerEventSystem(CheckStateBasedActions);
         this.playingArea = playingArea;
     }
 
@@ -120,34 +123,93 @@ public class RoundManager
         await triggerEventSystem.TriggerEvent(new GameEvent("RoundStart"));
         while (true)
         {
-            for (int i = 0; i < player1Deck.Count; i++)
-            {
-                await triggerEventSystem.TriggerEvent(new GameEvent("TurnStart"));
-                await Untap();
-                await Upkeep();
-                await PreCombat();
-                
-                await DeclareAttackers();
-                await DeclareBlockers(); 
-                await Damage();
-                
-                await Endstep();
-               
-                /*
-                
-                PostCombat();
-                
-                */
-                activePlayer = activePlayer.opponent;
+            await triggerEventSystem.TriggerEvent(new GameEvent("TurnStart"));
+            await PlayStep(Untap);
+            await PlayStep(Upkeep);
             
-                await triggerEventSystem.TriggerEvent(new GameEvent("GameEnd"));
-            }
-            break;
+            await PlayStep(PreCombat);
+            
+            await PlayStep(DeclareAttackers);
+            await PlayStep(DeclareBlockers); 
+            await PlayStep(Damage);
+
+            await PlayStep(PostCombat);
+            
+            await PlayStep(Endstep);
+            
+            if (roundOver) break;
+            
+            activePlayer = activePlayer.opponent;
         }
-        CardPlayer winner = activePlayer;
         foreach(Card card in deck1) card.UnregisterTriggers(this);
         foreach(Card card in deck2) card.UnregisterTriggers(this);
         return winner;
+    }
+
+    public async Task PlayStep(Func<Task> step)
+    {
+        if(roundOver) return;
+        await step();
+    }
+
+    public async Task CheckStateBasedActions()
+    {
+        bool x = true;
+        while (x)
+        {
+            x = await KillCreaturesWithLethalDamage();
+        }
+        CheckIfRoundOver();
+    }
+
+    public async Task<bool> KillCreaturesWithLethalDamage()
+    {
+        List<Card> cards = new List<Card>();
+        cards.AddRange(player1.inPlay.cards);
+        cards.AddRange(player2.inPlay.cards);
+        List<Card> cardsToKill = new List<Card>();
+        foreach (Card card in cards)
+        {
+            if (card.state.damage >= card.cardData.toughness && !card.cardData.keywords.Contains(Keywords.INDESTRUCTABLE))
+            {
+                cardsToKill.Add(card);
+            }
+        }
+        await KillCards(cardsToKill);
+        if (cardsToKill.Count == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public void CheckIfRoundOver()
+    {
+        if (player1.life == 0 || player2.life == 0)
+        {
+            roundOver = true;
+            if(player1.life > 0) winner = player1;
+            else if (player2.life > 0) winner = player2;
+            else winner = null;
+        }
+    }
+
+    public async Task KillCard(Card card)
+    {
+        await KillCards(new List<Card>() { card });
+    }
+
+    public async Task KillCards(List<Card> cards)
+    {
+        foreach (Card card in cards)
+        {
+            card.state.Reset();
+            await MoveCard(card,card.state.owner.graveyard);
+        }
+        foreach (Card card in cards)
+        {
+            await triggerEventSystem.TriggerEvent(new GameEvent("CardDied", card));
+        }
     }
 
     public async Task TapCard(Card card)
@@ -180,6 +242,14 @@ public class RoundManager
         {
             await triggerEventSystem.TriggerEvent(new GameEvent("PlayerGainedLife", player, Math.Abs(delta)));
         }
+    }
+
+    public async Task MoveCard(Card card, CardZone to)
+    {
+        CardZone oldZone = card.state.zone;
+        card.state.ChangeZone(to);
+        if(oldZone!=null) await triggerEventSystem.TriggerEvent(new GameEvent("CardLeftZone", card, from: oldZone));
+        await triggerEventSystem.TriggerEvent(new GameEvent("CardEnteredZone", card, to: to));
     }
 
     private async Task Untap()
@@ -217,6 +287,13 @@ public class RoundManager
     {
         await triggerEventSystem.TriggerEvent(new GameEvent("DamageStep"));
         //TODO: real combat
+    }
+    
+    private async Task PostCombat()
+    {
+        await triggerEventSystem.TriggerEvent(new  GameEvent("PostCombatStep"));
+        TriggerData triggerData = new TriggerData("", new PlayCard(new AnyCardInMyHand()));
+        await new Trigger(triggerData, this).Activate();
     }
 
     private async Task Endstep()
