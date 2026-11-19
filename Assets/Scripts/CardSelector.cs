@@ -26,17 +26,28 @@ public class AnyCardInMyHand : CardSelector
 
 public class AllMyCardsInPlay : CardSelector
 {
+    private PlayerSelector _selector;
+    public AllMyCardsInPlay(PlayerSelector selector)
+    {
+        _selector = selector;
+    }
     public override async Task<List<Card>> Resolve(EffectContext source)
     {
-        CardPlayer player = source.controller;
+        List<CardPlayer> players = _selector.Resolve(source);
 
-        if (player == null)
+        if (players == null)
         {
             Debug.Log("no valid player");
             return new List<Card>();
         }
+        List<Card> cards =  new List<Card>();
 
-        return player.inPlay.cards;
+        foreach (CardPlayer player in players)
+        {
+            cards.AddRange(player.inPlay.cards);
+        }
+
+        return cards;
     }
 }
 

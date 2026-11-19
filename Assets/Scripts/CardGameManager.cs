@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 public class CardGameManager
@@ -86,12 +87,13 @@ public class RoundManager
 {
     CardPlayer player1;
     CardPlayer player2;
+    
     public CardPlayer activePlayer;
     
     List<CardData> player1Deck;
     List<CardData> player2Deck;
     
-    TriggerEventSystem triggerEventSystem;
+    public TriggerEventSystem triggerEventSystem { get; private set; }
     PlayingAreaVisual playingArea;
     
     public RoundManager(CardPlayer player1, CardPlayer player2, CardPlayer activePlayer, List<CardData> player1Deck, List <CardData> player2Deck, PlayingAreaVisual playingArea = null)
@@ -107,23 +109,20 @@ public class RoundManager
 
     public async Task<CardPlayer> StartRound()
     {
-        player1.StartNewRound();
-        player2.StartNewRound();
         ReadyPlayers();
         List<Card> deck1 = CreateDeck(player1Deck,player1,player1.hand);
         List<Card> deck2 = CreateDeck(player2Deck,player2,player2.hand);
         player1.hand.AddCard(deck1);
         player2.hand.AddCard(deck2);
+        foreach(Card card in deck1) card.RegisterTriggers(this);
+        foreach(Card card in deck2) card.RegisterTriggers(this);
        
-        foreach(Card card in deck1) card.RegisterTriggers(triggerEventSystem);
-        foreach(Card card in deck2) card.RegisterTriggers(triggerEventSystem);
-       
-        await triggerEventSystem.TriggerEvent("RoundStart",new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new GameEvent("RoundStart"));
         while (true)
         {
             for (int i = 0; i < player1Deck.Count; i++)
             {
-                await triggerEventSystem.TriggerEvent("TurnStart", new EffectContext(this));
+                await triggerEventSystem.TriggerEvent(new GameEvent("TurnStart"));
                 await Untap();
                 await Upkeep();
                 await PreCombat();
@@ -141,70 +140,90 @@ public class RoundManager
                 */
                 activePlayer = activePlayer.opponent;
             
-                await triggerEventSystem.TriggerEvent("TurnEnd");
+                await triggerEventSystem.TriggerEvent(new GameEvent("GameEnd"));
             }
             break;
         }
         CardPlayer winner = activePlayer;
-        foreach(Card card in deck1) card.UnregisterTriggers(triggerEventSystem);
-        foreach(Card card in deck2) card.UnregisterTriggers(triggerEventSystem);
+        foreach(Card card in deck1) card.UnregisterTriggers(this);
+        foreach(Card card in deck2) card.UnregisterTriggers(this);
         return winner;
     }
 
     public async Task TapCard(Card card)
     {
         card.Tap();
-        await triggerEventSystem.TriggerEvent("TapCard", new EffectContext(card,this));
+        await triggerEventSystem.TriggerEvent(new GameEvent("CardTap", card));
     }
     
     public async Task UntapCard(Card card)
     {
         card.Untap();
-        await triggerEventSystem.TriggerEvent("UntapCard", new EffectContext(card,this));
+        await triggerEventSystem.TriggerEvent(new GameEvent("CardUntap", card));
+    }
+    
+    public async Task DeclareAttacker(Card card)
+    {
+        card.state.DeclareAttacker();
+        await triggerEventSystem.TriggerEvent(new  GameEvent("CardDeclaredAttacker", card));
+    }
+    
+    public async Task ChangeLife(CardPlayer player, int delta)
+    {
+        player.ChangeLife(delta);
+        if (delta < 0)
+        {
+            await triggerEventSystem.TriggerEvent(new GameEvent("PlayerLostLife", player, Math.Abs(delta)));
+        }
+
+        if (delta > 0)
+        {
+            await triggerEventSystem.TriggerEvent(new GameEvent("PlayerGainedLife", player, Math.Abs(delta)));
+        }
     }
 
     private async Task Untap()
     {
-        await triggerEventSystem.TriggerEvent("Untap", new EffectContext(this));
-        TriggerData triggerData = new TriggerData("", new Untap(new AllMyCardsInPlay()));
-        await new Trigger(triggerData).Activate(new EffectContext( this));
+        await triggerEventSystem.TriggerEvent(new GameEvent("UntapStep"));
+        TriggerData triggerData = new TriggerData("", new Untap(new AllMyCardsInPlay(new ActivePlayer())));
+        await new Trigger(triggerData,this).Activate();
     }
 
     private async Task Upkeep()
     {
-        await triggerEventSystem.TriggerEvent("Upkeep", new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new GameEvent("UpkeepStep"));
     }
 
     private async Task PreCombat()
     {
-        await triggerEventSystem.TriggerEvent("Precombat", new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new  GameEvent("PreCombatStep"));
         TriggerData triggerData = new TriggerData("", new PlayCard(new AnyCardInMyHand()));
-        await new Trigger(triggerData).Activate(new EffectContext(this));
+        await new Trigger(triggerData, this).Activate();
     }
 
     private async Task DeclareAttackers()
     {
-        await triggerEventSystem.TriggerEvent("DeclareAttackers", new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new  GameEvent("DeclareAttackersStep"));
         TriggerData triggerData = new TriggerData("", new DeclareAttacker(new ChooseAttackers()));
-        await new Trigger(triggerData).Activate(new EffectContext(this));
+        await new Trigger(triggerData,this).Activate();
     }
 
     private async Task DeclareBlockers()
     {
-        await triggerEventSystem.TriggerEvent("DeclareBlockers", new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new  GameEvent("DeclareBlockersStep"));
     }
 
     private async Task Damage()
     {
-        await triggerEventSystem.TriggerEvent("Damage", new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new GameEvent("DamageStep"));
         //TODO: real combat
     }
 
     private async Task Endstep()
     {
-        await triggerEventSystem.TriggerEvent("Endstep", new EffectContext(this));
+        await triggerEventSystem.TriggerEvent(new  GameEvent("EndStep"));
         TriggerData triggerData = new TriggerData("", new EndstepReset(new AllCardsInPlay()));
-        await new Trigger(triggerData).Activate(new EffectContext(this));
+        await new Trigger(triggerData,this).Activate();
     }
 
     private List<Card> CreateDeck(List<CardData> cards, CardPlayer player, CardZone hand)
@@ -233,6 +252,7 @@ public class RoundManager
             player1.hand = hand1;
             player1.inPlay = battlefield1;
             player1.graveyard = graveyard1;
+            player1.SetLife(5);
             
             CardZone hand2 = new CardZone(CardZone.ZoneType.HAND);
             CardZone battlefield2 = new CardZone(CardZone.ZoneType.INPLAY);
@@ -240,6 +260,7 @@ public class RoundManager
             player2.hand = hand2;
             player2.inPlay = battlefield2;
             player2.graveyard = graveyard2;
+            player2.SetLife(5);
         }
         else
         {
@@ -250,11 +271,5 @@ public class RoundManager
             player2.graveyard = new CardZone(CardZone.ZoneType.GRAVEYARD);
             player2.inPlay = new CardZone(CardZone.ZoneType.INPLAY);
         }
-    }
-
-    public async Task DeclareAttacker(Card card)
-    {
-        card.state.DeclareAttacker();
-        await triggerEventSystem.TriggerEvent("DeclareCardAttacker", new EffectContext(card, this));
     }
 }

@@ -98,7 +98,6 @@ public class CardState
 public class Card
 {
     public readonly CardData cardData;
-    private TriggerEventSystem triggerEventSystem;
     public readonly CardState state;
     public List<Trigger> abilities;
     
@@ -106,11 +105,6 @@ public class Card
     {
         state = new CardState(owner, zone);
         this.cardData = cardData;
-        abilities = new List<Trigger>();
-        foreach(TriggerData data in cardData.abilities)
-        {
-            abilities.Add(new Trigger(data));
-        }
     }
     
     public void Tap()
@@ -147,15 +141,18 @@ public class Card
         }
     }
 
-    public void RegisterTriggers(TriggerEventSystem triggerEventSystem)
+    public void RegisterTriggers(RoundManager roundManager)
     {
-        this.triggerEventSystem =  triggerEventSystem;
-        foreach(Trigger trigger in abilities) trigger.AddTrigger(triggerEventSystem);
+        abilities = new List<Trigger>();
+        foreach(TriggerData data in cardData.abilities)
+        {
+            abilities.Add(new Trigger(data,roundManager,this));
+        }
+        foreach(Trigger trigger in abilities) trigger.AddTrigger(roundManager.triggerEventSystem);
     }
 
-    public void UnregisterTriggers(TriggerEventSystem triggerEventSystem)
+    public void UnregisterTriggers(RoundManager roundManager)
     {
-        this.triggerEventSystem = null;
-        foreach(Trigger trigger in abilities) trigger.RemoveTrigger(triggerEventSystem);
+        foreach(Trigger trigger in abilities) trigger.RemoveTrigger(roundManager.triggerEventSystem);
     }
 }

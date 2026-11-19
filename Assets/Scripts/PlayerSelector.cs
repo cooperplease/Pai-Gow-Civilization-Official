@@ -21,3 +21,18 @@ public class Owner : PlayerSelector
         return new List<CardPlayer>(){source.controller};
     }
 }
+
+public class ActivePlayer : PlayerSelector
+{
+    public override List<CardPlayer> Resolve(EffectContext source)
+    {
+        return new List<CardPlayer> { source.roundManager.activePlayer };
+    }
+}
+public class InctivePlayer : PlayerSelector
+{
+    public override List<CardPlayer> Resolve(EffectContext source)
+    {
+        return new List<CardPlayer> { source.roundManager.activePlayer.opponent };
+    }
+}

@@ -9,10 +9,8 @@ public class CardPlayer
 {
     //player stats
     public readonly String name;
-    private int startingLifeTotal = 5;
+    public int life { get; private set; }
     List<CardData> collection = new List<CardData>();
-    
-    int lifeTotal;
     
     public CardZone hand;
     public CardZone inPlay;
@@ -23,7 +21,16 @@ public class CardPlayer
     {
         collection = data.collection;
         name = data.name;
-        startingLifeTotal = data.startingLifeTotal;
+    }
+
+    public void SetLife(int value)
+    {
+        life = value;
+    }
+    
+    public void ChangeLife(int delta)
+    {
+        life += delta;
     }
 
     public async Task<Queue<List<CardData>>> CreateRandomDecks(int numDecks, int cardsPerDeck)
@@ -57,11 +64,6 @@ public class CardPlayer
     {
         a.opponent = b;
         b.opponent = a;
-    }
-
-    public void StartNewRound()
-    {
-        lifeTotal = startingLifeTotal;
     }
 
     public async Task<Ability> Choose(String question, List<String> options, List<Ability> results, EffectContext effectContext)
@@ -114,12 +116,10 @@ public class CardPlayerData
 {
     public List<CardData> collection = new List<CardData>();
     public String name;
-    public int startingLifeTotal;
 
-    public CardPlayerData(List<CardData> collection, String name = "Chuddy Default Player",  int startingLifeTotal = 5)
+    public CardPlayerData(List<CardData> collection, String name = "Chuddy Default Player")
     {
         this.collection = collection;
         this.name = name;
-        this.startingLifeTotal = startingLifeTotal;
     }
 }

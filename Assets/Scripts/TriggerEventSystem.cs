@@ -29,14 +29,15 @@ public class TriggerEventSystem
         }
     }
     
-    public async Task TriggerEvent(String eventName, EffectContext context = null)
+    public async Task TriggerEvent(GameEvent gameEvent)
     {
+        String eventName = gameEvent.Name;
         if (triggers.TryGetValue(eventName, out var list))
         {
             Debug.Log(eventName+ " triggered");
             foreach (Trigger trigger in new List<Trigger>(list))
             {
-                if(trigger!=null) await trigger.Activate(context);
+                if(trigger!=null) await trigger.Activate(gameEvent);
             }
         }
         else
@@ -46,29 +47,30 @@ public class TriggerEventSystem
     }
 }
 
-public abstract class GameEvent
+public class GameEvent
 {
-    public abstract string Name { get; }
-    
-    public virtual Card card => null;
-    public virtual CardPlayer player => null;
-}
-
-public class CreatureDiedEvent : GameEvent
-{
-    public override string Name => "CreatureDied";
- 
-    public Card creature { get; }
+    public string Name { get; }
+    public Card card { get; }
+    public CardPlayer player { get; }
+    public int amount { get; }
     public CardZone from { get; }
- 
-    public CreatureDiedEvent(Card creature, CardZone from)
+    public CardZone to { get; }
+
+    public GameEvent(string name, Card card = null, CardPlayer player = null, int amount = 0, CardZone from = null, CardZone to = null)
     {
-        this.creature = creature;
+        Name = name;
+        this.card = card;
+        this.player = player;
+        this.amount = amount;
         this.from = from;
     }
- 
-    public override Card card => creature;
-    public override CardPlayer player => creature?.state.owner;
+    
+    public GameEvent(string name, CardPlayer player, int amount = 0)
+    {
+        Name = name;
+        this.player = player;
+        this.amount = amount;
+    }
 }
 
 public sealed class EffectContext
@@ -84,9 +86,10 @@ public sealed class EffectContext
         this.gameEvent = gameEvent;
     }
 
-    public EffectContext(RoundManager roundManager)
+    public EffectContext(RoundManager roundManager, GameEvent gameEvent = null)
     {
         this.roundManager = roundManager;
+        this.gameEvent = gameEvent;
     }
     
     public CardPlayer controller => cardSource?.state.owner ?? roundManager?.activePlayer;
@@ -108,11 +111,15 @@ public class TriggerData
 
 public class Trigger
 {
-    TriggerData data;
+    private TriggerData data;
+    private Card card;
+    private RoundManager roundManager;
 
-    public Trigger(TriggerData triggerData)
+    public Trigger(TriggerData triggerData, RoundManager roundManager, Card card = null)
     {
         this.data = triggerData;
+        this.card = card;
+        this.roundManager = roundManager;
     }
 
     public void AddTrigger(TriggerEventSystem triggerEventSystem)
@@ -125,8 +132,15 @@ public class Trigger
         triggerEventSystem.RemoveTrigger(data.eventName, this);
     }
 
-    public async Task Activate(EffectContext effectContext = null)
+    public async Task Activate(GameEvent gameEvent = null)
     {
-        await data.ability.Activate(effectContext);
+        if (card != null)
+        {
+            await data.ability.Activate(new EffectContext(card, roundManager, gameEvent));
+        }
+        else
+        {
+            await data.ability.Activate(new EffectContext(roundManager, gameEvent));
+        }
     }
 }
