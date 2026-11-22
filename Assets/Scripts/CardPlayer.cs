@@ -43,14 +43,14 @@ public class CardPlayer
         Queue<List<CardData>> decks = new Queue<List<CardData>>();
         for (int i = 0; i < numDecks; i++)
         {
-            List<CardData> deck = new List<CardData>(cardsPerDeck);
+            List<CardData> deck = new List<CardData>();
             for (int j = 0; j < cardsPerDeck; j++)
             {
                 deck.Add(shuffled[i * cardsPerDeck + j]);
             }
             decks.Enqueue(deck);
         }
-        await Task.Delay(1000);
+        await Awaitable.WaitForSecondsAsync(1f);
         return decks;
     }
 
@@ -73,41 +73,35 @@ public class CardPlayer
         return results[0];
     }
 
-    public async Task<Card> ChooseCardInPlay()
+    public async Task<List<Card>> ChooseCardInPlay()
     {
         //todo: real choice
         List<Card> options = inPlay.cards.Concat(opponent.inPlay.cards).ToList();
-        await Task.Delay(1000);
-        if (options.Count<1) return null;
-        return options[0];
+        if (options.Count<1) return new List<Card>();
+        return await ChooseUpToXCardsFromList(1, options);
     }
     
-    public async Task<Card> ChooseCardInHand()
+    public async Task<List<Card>> ChooseCardInHand()
     {
         //todo: real choice
         List<Card> options = hand.cards;
-        await Task.Delay(1000);
-        if (options.Count<1) return null;
-        return options[0];
-    }
-    
-    public async Task<Card> ChooseCardFromList(List<Card> cards)
-    {
-        //todo: real choice
-        return cards[0];
+        if (options.Count<1) return new List<Card>();
+        return await ChooseUpToXCardsFromList(1, options);
     }
 
     public async Task<List<Card>> ChooseCardsFromList(List<Card> cards)
     {
+        if(cards.Count<1) return new List<Card>();
         //todo: real choice
-        await Task.Delay(1000);
+        await Awaitable.WaitForSecondsAsync(1f);
         return cards;
     }
     
-    public async Task<List<Card>> ChooseXCardsFromList(int x, List<Card> cards)
+    public async Task<List<Card>> ChooseUpToXCardsFromList(int x, List<Card> cards)
     {
+        if(cards.Count<1) return new List<Card>();
         //todo: real choice
-        await Task.Delay(1000);
+        await Awaitable.WaitForSecondsAsync(1f);
         return cards.GetRange(0,x);
     }
 }

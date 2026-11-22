@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Keywords { FLASH, HASTE, FLYING, VIGILANCE, INDESTRUCTABLE}
+public enum Keywords { FLASH, HASTE, FLYING, VIGILANCE, INDESTRUCTABLE, TRAMPLE}
 public enum FoilTreatment {REGULAR, FOIL, ULTRAFOIL}
 
 public class CardData
@@ -26,8 +26,8 @@ public class CardData
         this.flavorText = flavorText;
         this.power = power;
         this.toughness = toughness;
-        this.abilities = abilities;
-        this.keywords = keywords;
+        if(abilities != null) this.abilities = abilities; else this.abilities = new List<TriggerData>();
+        if(keywords!=null) this.keywords = keywords; else this.keywords = new List<Keywords>();
     }
 }
 
@@ -109,6 +109,7 @@ public class Card
     public readonly CardData cardData;
     public readonly CardState state;
     public List<Trigger> abilities;
+    public int Toughness => cardData.toughness-state.damage;
     
     public Card(CardData cardData, CardPlayer owner, CardZone zone)
     {

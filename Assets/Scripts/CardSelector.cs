@@ -10,9 +10,14 @@ public abstract class CardSelector
 
 public class AnyCardInMyHand : CardSelector
 {
+    private PlayerSelector playerSelector;
+    public AnyCardInMyHand(PlayerSelector player)
+    {
+        playerSelector = player;
+    }
     public override async Task<List<Card>> Resolve(EffectContext source)
     {
-        CardPlayer player = source.controller;
+        CardPlayer player = playerSelector.Resolve(source)[0];
 
         if (player == null)
         {
@@ -20,7 +25,7 @@ public class AnyCardInMyHand : CardSelector
             return new List<Card>();
         }
 
-        return new List<Card> { await player.ChooseCardInHand() };
+        return await player.ChooseCardInHand();
     }
 }
 
@@ -55,14 +60,7 @@ public class AllCardsInPlay : CardSelector
 {
     public override async Task<List<Card>> Resolve(EffectContext source)
     {
-        CardPlayer player = source.controller;
-
-        if (player == null)
-        {
-            Debug.Log("no valid player");
-            return new List<Card>();
-        }
-
+        CardPlayer player = source.roundManager.activePlayer;
         return player.inPlay.cards.Concat(player.opponent.inPlay.cards).ToList();
     }
 }
@@ -71,7 +69,7 @@ public class ChooseAttackers : CardSelector
 {
     public override async Task<List<Card>> Resolve(EffectContext source)
     {
-        CardPlayer player = source.controller;
+        CardPlayer player = source.roundManager.activePlayer;
 
         if (player == null)
         {
@@ -86,8 +84,24 @@ public class ChooseAttackers : CardSelector
                 options.Add(card);
             }
         }
+        List<Card> result = await player.ChooseCardsFromList(options);
+        Debug.Log("fini");
+        return result;
+    }
+}
 
-        return await player.ChooseCardsFromList(options);
+public class ThisCard : CardSelector
+{
+    public override async Task<List<Card>> Resolve(EffectContext source)
+    {
+        if (source.cardSource != null)
+        {
+            return new List<Card>() { source.cardSource };
+        }
+        else
+        {
+            return new List<Card>();
+        }
     }
 }
 

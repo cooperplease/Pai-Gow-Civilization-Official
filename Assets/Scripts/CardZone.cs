@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,10 +15,16 @@ public class CardZone
         this.visual = visual;
     }
 
+    public override String ToString()
+    {
+        return zoneType.ToString();
+    }
+
     public static void MoveCard(Card card, CardZone to)
     {
         card.state.zone.RemoveCard(card);
         to.AddCard(card);
+        card.state.ChangeZone(to);
     }
 
     public bool HasCard(Card card)
@@ -25,9 +32,8 @@ public class CardZone
         return cards.Contains(card);
     }
 
-    public void AddCard(Card card)
+    private void AddCard(Card card)
     {
-        card.state.ChangeZone(this);
         cards.Add(card);
     }
 
@@ -40,7 +46,7 @@ public class CardZone
         }
     }
 
-    public void RemoveCard(Card card)
+    private void RemoveCard(Card card)
     {
         cards.Remove(card);
     }

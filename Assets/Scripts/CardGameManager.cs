@@ -37,10 +37,13 @@ public class CardGameManager
         
         //TODO: randomly choose starting player
         firstPlayer = player1;
-        Debug.Log("First player chosen");
+        Debug.Log("First player chosen:  " + firstPlayer.name);
         
+        Debug.Log("Making Decks");
         Queue<List<CardData>> player1Decks = await player1.CreateDecks(numDecks, cardsPerDeck);
         Queue<List<CardData>> player2Decks = await player2.CreateDecks(numDecks, cardsPerDeck);
+        
+        Debug.Log("Made decks");
         
         for (int i = 0; i < totalRounds; i++)
         {
@@ -140,6 +143,7 @@ public class RoundManager
             if (roundOver) break;
             
             activePlayer = activePlayer.opponent;
+            await Awaitable.WaitForSecondsAsync(1f);
         }
         foreach(Card card in deck1) card.UnregisterTriggers(this);
         foreach(Card card in deck2) card.UnregisterTriggers(this);
@@ -170,7 +174,7 @@ public class RoundManager
         List<Card> cardsToKill = new List<Card>();
         foreach (Card card in cards)
         {
-            if (card.state.damage >= card.cardData.toughness && !card.cardData.keywords.Contains(Keywords.INDESTRUCTABLE))
+            if (card.Toughness<=0 && !card.cardData.keywords.Contains(Keywords.INDESTRUCTABLE))
             {
                 cardsToKill.Add(card);
             }
@@ -191,6 +195,7 @@ public class RoundManager
             if(player1.life > 0) winner = player1;
             else if (player2.life > 0) winner = player2;
             else winner = null;
+            Debug.Log("round over");
         }
     }
 
@@ -228,28 +233,65 @@ public class RoundManager
     {
         card.state.DeclareAttacker();
         await triggerEventSystem.TriggerEvent(new  GameEvent("CardDeclaredAttacker", card));
+        await TapCard(card);
+    }
+    
+    public async Task AssignBlock(Card blocker, Card attacker)
+    {
+        blocker.state.DeclareBlocker(attacker);
+        await triggerEventSystem.TriggerEvent(new  GameEvent("CardDeclaredBlocker", blocker));
+        await triggerEventSystem.TriggerEvent(new  GameEvent("CardDeclaredBlocked", attacker));
     }
     
     public async Task ChangeLife(CardPlayer player, int delta)
     {
         player.ChangeLife(delta);
+        await ChangeLifeEvent(player, delta);
+        
+    }
+ 
+    private async Task ChangeLifeEvent(CardPlayer player, int delta)
+    {
         if (delta < 0)
         {
             await triggerEventSystem.TriggerEvent(new GameEvent("PlayerLostLife", player, Math.Abs(delta)));
         }
-
-        if (delta > 0)
+        else if (delta > 0)
         {
             await triggerEventSystem.TriggerEvent(new GameEvent("PlayerGainedLife", player, Math.Abs(delta)));
         }
+        Debug.Log(player.name + " life changed by "  + delta + " life new life total: "+  player.life);
     }
 
     public async Task MoveCard(Card card, CardZone to)
     {
         CardZone oldZone = card.state.zone;
-        card.state.ChangeZone(to);
-        if(oldZone!=null) await triggerEventSystem.TriggerEvent(new GameEvent("CardLeftZone", card, from: oldZone));
+        CardZone.MoveCard(card, to);
+        Debug.Log("move card: " + card +" to zone: " + to);
+        await triggerEventSystem.TriggerEvent(new GameEvent("CardLeftZone", card, from: oldZone));
         await triggerEventSystem.TriggerEvent(new GameEvent("CardEnteredZone", card, to: to));
+    }
+
+    public async Task PlayCard(CardPlayer player, Card card)
+    {
+        await PlayCards(player,new List<Card>{card});
+    }
+    
+    public async Task PlayCards(CardPlayer player, List<Card> cards)
+    {
+        foreach (Card card in cards)
+        {
+            await triggerEventSystem.TriggerEvent(new GameEvent("PlayerPlayedCard", card, player));
+            if (player == null)
+            {
+                Debug.Log("null player");
+            }
+            if (player.inPlay == null)
+            {
+                Debug.Log("null zone");
+            }
+            await MoveCard(card, player.inPlay);
+        }
     }
 
     private async Task Untap()
@@ -267,7 +309,7 @@ public class RoundManager
     private async Task PreCombat()
     {
         await triggerEventSystem.TriggerEvent(new  GameEvent("PreCombatStep"));
-        TriggerData triggerData = new TriggerData("", new PlayCard(new AnyCardInMyHand()));
+        TriggerData triggerData = new TriggerData("", new PlayCard(new AnyCardInMyHand(new ActivePlayer()), new ActivePlayer()));
         await new Trigger(triggerData, this).Activate();
     }
 
@@ -281,18 +323,114 @@ public class RoundManager
     private async Task DeclareBlockers()
     {
         await triggerEventSystem.TriggerEvent(new  GameEvent("DeclareBlockersStep"));
+        TriggerData triggerData = new TriggerData("", new AssignBlockers());
+        await new Trigger(triggerData,this).Activate();
+    }
+
+    private class DamageData
+    {
+        public readonly Card source;
+        public readonly Card targetCard;
+        public readonly CardPlayer targetPlayer;
+        public readonly int amount;
+ 
+        public DamageData(Card source, Card targetCard, CardPlayer targetPlayer, int amount)
+        {
+            this.source = source;
+            this.targetCard = targetCard;
+            this.targetPlayer = targetPlayer;
+            this.amount = amount;
+        }
     }
 
     private async Task Damage()
     {
         await triggerEventSystem.TriggerEvent(new GameEvent("DamageStep"));
-        //TODO: real combat
+        List<Card> attackers = new List<Card>();
+        foreach (Card card in activePlayer.inPlay.cards)
+        {
+            if(card.state.declaredAttacker) attackers.Add(card);
+        }
+        List<Card> blockers = new List<Card>();
+        foreach (Card card in activePlayer.opponent.inPlay.cards)
+        {
+            if(card.state.blockingTarget!=null) blockers.Add(card);
+        }
+        List<Card> unblockedAttackers = new List<Card>();
+        Dictionary<Card,List<Card>> blocks = new Dictionary<Card,List<Card>>();
+        foreach (Card attacker in attackers)
+        {
+            bool blocked = false;
+            foreach (Card blocker in blockers)
+            {
+                if(blocker.state.blockingTarget == attacker)
+                {
+                    blocked = true;
+                    if(blocks.ContainsKey(attacker)) blocks[attacker].Add(blocker);
+                    else blocks.Add(attacker, new List<Card>(){blocker});
+                }
+            }
+            if (!blocked) unblockedAttackers.Add(attacker);
+        }
+        
+        List<DamageData> damageData = new List<DamageData>();
+
+        foreach (Card attacker in blocks.Keys)
+        {
+            int totalPower = attacker.cardData.power;
+            int totalBlocked = 0;
+            foreach (Card blocker in blocks[attacker])
+            {
+                if(totalBlocked >= (attacker.Toughness)&&!attacker.cardData.keywords.Contains(Keywords.INDESTRUCTABLE))return;
+                int damageDealt = Math.Clamp(totalPower,0,blocker.cardData.toughness);
+                totalPower -= damageDealt;
+                damageData.Add(new DamageData(attacker, blocker,null, damageDealt));
+                damageData.Add(new DamageData(blocker, attacker, null, blocker.cardData.power));
+                totalBlocked += blocker.cardData.power;
+            }
+
+            if (totalPower > 0 && attacker.cardData.keywords.Contains(Keywords.TRAMPLE))
+            {
+                damageData.Add(new DamageData(attacker, null, activePlayer.opponent, totalPower));
+            }
+        }
+        
+        foreach (Card attacker in unblockedAttackers)
+        {
+            damageData.Add(new DamageData(attacker, null, activePlayer.opponent, attacker.cardData.power));
+        }
+
+        foreach (DamageData damage in damageData)
+        {
+            if (damage.amount <= 0) continue;
+ 
+            if (damage.targetCard != null) damage.targetCard.TakeDamage(damage.amount);
+            else damage.targetPlayer.ChangeLife(-damage.amount);
+        }
+        
+        foreach (DamageData damage in damageData)
+        {
+            if (damage.amount <= 0) continue;
+            
+            await triggerEventSystem.TriggerEvent(new GameEvent("CardDealDamage", damage.source, damage.source.state.owner, amount: damage.amount));
+            Debug.Log("card: "+damage.source.cardData.name +" deals damage: "+ damage.amount);
+ 
+            if (damage.targetCard != null)
+            {
+                await triggerEventSystem.TriggerEvent(new GameEvent("CardTakeDamage", damage.targetCard, damage.targetCard.state.owner, amount: damage.amount));
+                Debug.Log("card: "+damage.targetCard.cardData.name +" takes damage: "+ damage.amount+ " new toughness: "+damage.targetCard.Toughness);
+            }
+            else
+            {
+                await ChangeLifeEvent(damage.targetPlayer, -damage.amount);
+            }
+        }
     }
     
     private async Task PostCombat()
     {
         await triggerEventSystem.TriggerEvent(new  GameEvent("PostCombatStep"));
-        TriggerData triggerData = new TriggerData("", new PlayCard(new AnyCardInMyHand()));
+        TriggerData triggerData = new TriggerData("", new PlayCard(new AnyCardInMyHand(new ActivePlayer()),new ActivePlayer()));
         await new Trigger(triggerData, this).Activate();
     }
 
@@ -321,23 +459,23 @@ public class RoundManager
 
     private void ReadyPlayers()
     {
+        player1.SetLife(5);
+        player2.SetLife(5);
         if (playingArea!=null)
         {
-            CardZone hand1 = new CardZone(CardZone.ZoneType.HAND);
-            CardZone battlefield1 = new CardZone(CardZone.ZoneType.INPLAY);
-            CardZone graveyard1 = new CardZone(CardZone.ZoneType.GRAVEYARD);
+            CardZone hand1 = new CardZone(CardZone.ZoneType.HAND,playingArea.player1Hand);
+            CardZone battlefield1 = new CardZone(CardZone.ZoneType.INPLAY,playingArea.player1Battlefield);
+            CardZone graveyard1 = new CardZone(CardZone.ZoneType.GRAVEYARD,playingArea.player1Graveyard);
             player1.hand = hand1;
             player1.inPlay = battlefield1;
             player1.graveyard = graveyard1;
-            player1.SetLife(5);
             
-            CardZone hand2 = new CardZone(CardZone.ZoneType.HAND);
-            CardZone battlefield2 = new CardZone(CardZone.ZoneType.INPLAY);
-            CardZone graveyard2 = new CardZone(CardZone.ZoneType.GRAVEYARD);
+            CardZone hand2 = new CardZone(CardZone.ZoneType.HAND,playingArea.player2Hand);
+            CardZone battlefield2 = new CardZone(CardZone.ZoneType.INPLAY,playingArea.player2Battlefield);
+            CardZone graveyard2 = new CardZone(CardZone.ZoneType.GRAVEYARD,playingArea.player2Graveyard);
             player2.hand = hand2;
             player2.inPlay = battlefield2;
             player2.graveyard = graveyard2;
-            player2.SetLife(5);
         }
         else
         {

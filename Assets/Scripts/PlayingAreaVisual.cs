@@ -2,24 +2,21 @@ using UnityEngine;
 
 public class PlayingAreaVisual : MonoBehaviour
 {
-    
-    public GameObject cardVisualPrefab;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public CardZoneVisual player1Hand;
+    public CardZoneVisual player2Hand;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public CardZoneVisual player1Battlefield;
+    public CardZoneVisual player2Battlefield;
+
+    public CardZoneVisual player1Graveyard;
+    public CardZoneVisual player2Graveyard;
+    
+    public GameObject CardVisualPrefab;
 
     public void SpawnCard(Card card)
     {
-        GameObject visual = Instantiate(cardVisualPrefab);
-        CardVisual cardVisual = visual.GetComponent<CardVisual>();
-        cardVisual.SetCard(card);
+        GameObject cardVisual = Instantiate(CardVisualPrefab);
+        CardVisual cardVisualScript = cardVisual.GetComponent<CardVisual>();
+        cardVisualScript.SetCard(card);
     }
 }
