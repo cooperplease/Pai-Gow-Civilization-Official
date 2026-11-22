@@ -165,7 +165,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1352876164431157910}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0.00000015180558}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -179,7 +179,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.00000015646219, y: -0.000000040628947}
   m_SizeDelta: {x: 2.5, y: 3.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &2883588962145659102
@@ -200,7 +200,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
-  m_AdditionalShaderChannelsFlag: 31
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -449,7 +449,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -1723367220663790537, guid: 50e743cb7830d481092e25637345fe4b, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -467,6 +467,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2576492308324554994}
   - component: {fileID: 7005029117493554523}
+  - component: {fileID: 491782418822505850}
   m_Layer: 0
   m_Name: CardVisual
   m_TagString: Untagged
@@ -482,14 +483,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3074245073599991756}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: -0}
+  m_LocalRotation: {x: -0.15350902, y: -0.11178949, z: 0.017481517, w: 0.9816479}
+  m_LocalPosition: {x: 0.01994759, y: -0.0013797348, z: 0.000037650578}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8143883220361845674}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -17.306, y: -13.621, z: 4.123}
 --- !u!114 &7005029117493554523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -502,11 +503,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc476f08e27f04dd2a4b47d1babaecb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardVisual
+  canvas: {fileID: 2883588962145659102}
   cardName: {fileID: 5227831650920334645}
   cardDescription: {fileID: 916670509529566731}
   stats: {fileID: 4438440849275436407}
   basePos: {x: 0, y: 0, z: 0}
   baseRot: {x: 0, y: 0, z: 0, w: 0}
+  col: {fileID: 491782418822505850}
+  hovered: 0
+--- !u!65 &491782418822505850
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3074245073599991756}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.6111493, y: 3.6387327, z: 0.20076874}
+  m_Center: {x: 0.0063431263, y: -0.012686372, z: 0.006343141}
 --- !u!1 &3886060379433643212
 GameObject:
   m_ObjectHideFlags: 0
@@ -839,7 +864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.31132078, g: 0.26179972, b: 0.23936456, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

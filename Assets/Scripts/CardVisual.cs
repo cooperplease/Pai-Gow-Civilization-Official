@@ -5,6 +5,7 @@ using TMPro;
 public class CardVisual : MonoBehaviour
 {
     public Card card;
+    public Canvas canvas;
 
     public Image art;
     public TextMeshProUGUI cardName;
@@ -15,7 +16,8 @@ public class CardVisual : MonoBehaviour
     public Quaternion baseRot;
     
     public CardZone currentZone;
-    
+    public Collider col;
+    public bool hovered = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -55,13 +57,28 @@ public class CardVisual : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position += (basePos - transform.position) * Time.deltaTime;
+        //todo: make this good
+        transform.position += (basePos - transform.position) *(2f* Time.deltaTime);
+        if(hovered)canvas.transform.localScale += (new Vector3(2,2,1)- canvas.transform.localScale) * (2f*Time.deltaTime);
+        else canvas.transform.localScale += (new Vector3(1,1,1)- canvas.transform.localScale) * (2f*Time.deltaTime);
+        if(hovered)canvas.transform.localPosition += (new Vector3(0,0,-1)- canvas.transform.localPosition) * (2f*Time.deltaTime);
+        else canvas.transform.localPosition += (new Vector3(0,0,0)- canvas.transform.localPosition) * (2f*Time.deltaTime);
         transform.rotation = baseRot;
         if (card != null && card.state != null && card.state.tapped)
         {
             transform.rotation*= Quaternion.Euler(0,0,90);
         }
         UpdateZone();
+    }
+    
+    void OnMouseOver()
+    {
+        hovered = true;
+    }
+
+    void OnMouseExit()
+    {
+        hovered = false;
     }
     
     

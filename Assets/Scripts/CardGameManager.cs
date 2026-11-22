@@ -144,6 +144,7 @@ public class RoundManager
             
             activePlayer = activePlayer.opponent;
             await Awaitable.WaitForSecondsAsync(1f);
+            //todo: draw condition!
         }
         foreach(Card card in deck1) card.UnregisterTriggers(this);
         foreach(Card card in deck2) card.UnregisterTriggers(this);
