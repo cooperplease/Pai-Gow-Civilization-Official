@@ -5,7 +5,7 @@ using Yarn;
 public class ExampleSystemScript : MonoBehaviour
 {
     [SerializeField] private InputActionReference interactAction;
-    [SerializeField] private string startingYarnNode = "AngryChuddyStart";
+    [SerializeField] private string startingYarnNode;
     private bool canMove = true;
 
     private void OnEnable()
