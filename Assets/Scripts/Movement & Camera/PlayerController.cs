@@ -30,12 +30,13 @@ public class PlayerController : MonoBehaviour, Controls.IPlayerActions
     void Update()
     {
         Vector3 movement = new Vector3(_moveInput.x, 0f, _moveInput.y);
-        if (movement.sqrMagnitude > 1f)
+        if(movement.sqrMagnitude > 1f)
         {
             movement.Normalize();
         }
 
         transform.Translate(movement * (speed * Time.deltaTime));
+        //_rb.AddForce(movement*speed);
     }
 
     public void OnMove(InputAction.CallbackContext context)
