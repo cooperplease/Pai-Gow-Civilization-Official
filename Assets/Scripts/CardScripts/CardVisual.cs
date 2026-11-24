@@ -1,13 +1,15 @@
 using System;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class CardVisual : MonoBehaviour
 {
-    Card card;
-    
+    public Card card;
+
+    public Image selection;
     public Canvas canvas;
     public Image art;
     public TextMeshProUGUI cardName;
@@ -21,11 +23,18 @@ public class CardVisual : MonoBehaviour
     public float hoverRotationAmount = 2f;
     public float rotationSnapiness = .01f;
     public float movementSnapiness = 1f;
+    public Color selectableColor;
+    public Color hoveredSelectableColor;
+    public Color selectedColor;
     
     public Vector3 basePos;
     public Quaternion baseRot;
     bool hovered = false;
-    private static CardVisual selected;
+    bool selectable = false;
+    bool selected = false;
+    
+    public Action<CardVisual> selectCallback;
+  
     private Vector3 moveVelocity = Vector3.zero;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -62,6 +71,18 @@ public class CardVisual : MonoBehaviour
         if (currentZone != null && currentZone.visual != null)
             currentZone.visual.AddCard(this);
     }
+
+    public void SetSelectable(bool selectable)
+    {
+        this.selectable = selectable;
+        selection.enabled = selectable;
+    }
+
+    public void SetSelected(bool selected)
+    {
+        this.selected = selected;
+        selection.color = selected ? selectedColor : hoveredSelectableColor;
+    }
     
     public static float Damp(float a, float b, float lambda, float dt)
     {
@@ -74,7 +95,7 @@ public class CardVisual : MonoBehaviour
         
         if (hovered)
         {
-            goalRot = Quaternion.Inverse(mainCam.transform.rotation);
+            goalRot = Quaternion.LookRotation(mainCam.transform.forward,mainCam.transform.up);
             if (Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))
             {
                 Vector3 localPoint = hit.transform.InverseTransformPoint(hit.point);
@@ -94,8 +115,6 @@ public class CardVisual : MonoBehaviour
         
         canvas.transform.rotation = Quaternion.Slerp(canvas.transform.rotation, goalRot, rotationSnapiness);
     }
-    
-    
 
     public void UpdatePosition()
     {
@@ -113,11 +132,27 @@ public class CardVisual : MonoBehaviour
         if(hovered)canvas.transform.localPosition += (new Vector3(0,0,-1)- canvas.transform.localPosition) * (5f*Time.deltaTime);
         else canvas.transform.localPosition += (new Vector3(0,0,0)- canvas.transform.localPosition) * (4f*Time.deltaTime);
     }
+
+    public void UpdateSelectable()
+    {
+        if (selectable && !selected)
+        {
+            if (hovered)
+            {
+                selection.color = hoveredSelectableColor;
+            }
+            else
+            {
+                selection.color = selectableColor;
+            }
+        }
+    }
     
     // Update is called once per frame
     void Update()
     {
         //todo: make this good
+        UpdateSelectable();
         UpdatePosition();
         UpdateCanvasPosition();
         UpdateRotation();
@@ -131,7 +166,11 @@ public class CardVisual : MonoBehaviour
 
     private void OnMouseDown()
     {
-       
+        if (selectable)
+        {
+            selectCallback?.Invoke(this);
+            Debug.Log("selected!");
+        }
     }
 
     void OnMouseExit()

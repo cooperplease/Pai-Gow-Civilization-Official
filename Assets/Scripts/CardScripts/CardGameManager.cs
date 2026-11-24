@@ -379,15 +379,15 @@ public class RoundManager
         foreach (Card attacker in blocks.Keys)
         {
             int totalPower = attacker.cardData.power;
-            int totalBlocked = 0;
+            int totalDealtByBlockers = 0;
             foreach (Card blocker in blocks[attacker])
             {
-                if(totalBlocked >= (attacker.Toughness)&&!attacker.cardData.keywords.Contains(Keywords.INDESTRUCTABLE))return;
+                if(totalDealtByBlockers >= attacker.Toughness&&!attacker.cardData.keywords.Contains(Keywords.INDESTRUCTABLE))continue;
                 int damageDealt = Math.Clamp(totalPower,0,blocker.cardData.toughness);
                 totalPower -= damageDealt;
                 damageData.Add(new DamageData(attacker, blocker,null, damageDealt));
                 damageData.Add(new DamageData(blocker, attacker, null, blocker.cardData.power));
-                totalBlocked += blocker.cardData.power;
+                totalDealtByBlockers += blocker.cardData.power;
             }
 
             if (totalPower > 0 && attacker.cardData.keywords.Contains(Keywords.TRAMPLE))

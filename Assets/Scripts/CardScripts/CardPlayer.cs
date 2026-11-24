@@ -93,11 +93,11 @@ public class CardPlayer
     {
         if(cards.Count<1) return new List<Card>();
         //todo: real choice
-        await Awaitable.WaitForSecondsAsync(1f);
+        return await ChooseUpToXCardsFromList(cards.Count, cards);
         return cards;
     }
     
-    public async Task<List<Card>> ChooseUpToXCardsFromList(int x, List<Card> cards)
+    public virtual async Task<List<Card>> ChooseUpToXCardsFromList(int x, List<Card> cards)
     {
         if(cards.Count<1) return new List<Card>();
         //todo: real choice

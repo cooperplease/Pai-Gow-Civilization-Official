@@ -24,7 +24,7 @@ public class CardSystemTest : MonoBehaviour
         }
         CardPlayerData playerData = new CardPlayerData(collection, "chuddy1");
         CardPlayerData playerData2 = new CardPlayerData(collection, "chuddy2");
-        CardPlayer player1 = new CardPlayer(playerData);
+        CardPlayer player1 = new HumanCardPlayer(playerData,playingArea,"Simon");
         CardPlayer player2 = new CardPlayer(playerData2);
         cardGameManager = new CardGameManager(player1, player2,playingArea);
         StartTest();
