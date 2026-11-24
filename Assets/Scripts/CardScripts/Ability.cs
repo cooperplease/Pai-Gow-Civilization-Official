@@ -22,7 +22,7 @@ public class ChangeLife : Ability
     {
         foreach (CardPlayer player in selector.Resolve(source))
         {
-            //todo: gamemanager.changeLife(player)
+            source.roundManager.ChangeLife(player,delta);
         }
     }
 }

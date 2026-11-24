@@ -439,7 +439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: db7225262a9444efd844abd5b4941117, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -483,14 +483,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3074245073599991756}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.15350902, y: -0.11178949, z: 0.017481517, w: 0.9816479}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.01994759, y: -0.0013797348, z: 0.000037650578}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8143883220361845674}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -17.306, y: -13.621, z: 4.123}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7005029117493554523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,10 +507,12 @@ MonoBehaviour:
   cardName: {fileID: 5227831650920334645}
   cardDescription: {fileID: 916670509529566731}
   stats: {fileID: 4438440849275436407}
+  col: {fileID: 491782418822505850}
+  hoverRotationAmount: 5
+  rotationSnapiness: 0.1
+  movementSnapiness: 0.05
   basePos: {x: 0, y: 0, z: 0}
   baseRot: {x: 0, y: 0, z: 0, w: 0}
-  col: {fileID: 491782418822505850}
-  hovered: 0
 --- !u!65 &491782418822505850
 BoxCollider:
   m_ObjectHideFlags: 0
