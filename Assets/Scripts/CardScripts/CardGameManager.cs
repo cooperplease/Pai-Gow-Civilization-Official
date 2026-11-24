@@ -426,6 +426,11 @@ public class RoundManager
                 await ChangeLifeEvent(damage.targetPlayer, -damage.amount);
             }
         }
+
+        foreach (Card card in activePlayer.inPlay.cards.Concat(activePlayer.opponent.inPlay.cards).ToList())
+        {
+            card.state.EndCombat();
+        }
     }
     
     private async Task PostCombat()

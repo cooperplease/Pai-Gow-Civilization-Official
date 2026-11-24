@@ -51,7 +51,6 @@ public class AllMyCardsInPlay : CardSelector
         {
             cards.AddRange(player.inPlay.cards);
         }
-
         return cards;
     }
 }
@@ -85,7 +84,6 @@ public class ChooseAttackers : CardSelector
             }
         }
         List<Card> result = await player.ChooseCardsFromList(options);
-        Debug.Log("fini");
         return result;
     }
 }
