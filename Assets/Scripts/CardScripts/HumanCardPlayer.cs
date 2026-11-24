@@ -6,7 +6,7 @@ using UnityEngine;
 public class HumanCardPlayer : CardPlayer
 {
     PlayingAreaVisual visual;
-    public HumanCardPlayer(CardPlayerData data, PlayingAreaVisual visual, String name = "Human Player") : base(data)
+    public HumanCardPlayer(CardPlayerData data, PlayingAreaVisual visual) : base(data)
     {
         this.visual = visual;
     }

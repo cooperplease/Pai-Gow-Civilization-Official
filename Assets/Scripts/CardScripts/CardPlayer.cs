@@ -54,7 +54,7 @@ public class CardPlayer
         return decks;
     }
 
-    public async Task<Queue<List<CardData>>> CreateDecks(int numDecks, int cardsPerDeck)
+    public virtual async Task<Queue<List<CardData>>> CreateDecks(int numDecks, int cardsPerDeck)
     {
         //TODO: make real choices
         return await CreateRandomDecks(numDecks, cardsPerDeck);

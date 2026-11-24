@@ -5,6 +5,9 @@ public class CardZoneVisual : MonoBehaviour
 {
     public Vector3 offset = Vector3.up;
     public List<CardVisual> cards = new List<CardVisual>();
+    public float cardWidth = 2.5f;
+    public float cardHeight = 3.5f;
+    public float spacing = .5f;
 
     public void AddCard(CardVisual card)
     {
@@ -25,8 +28,10 @@ public class CardZoneVisual : MonoBehaviour
 
     public void CalculateBasePositions()
     {
+        float totalWidth = (cardHeight+ spacing) *cards.Count;
         for(int i = 0; i< cards.Count; i++)
         {
+            
             cards[i].basePos = transform.TransformPoint((i - ((cards.Count-1) / 2f))/cards.Count * Vector3.right+ offset);
             cards[i].baseRot = transform.rotation;
         }
