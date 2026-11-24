@@ -137,3 +137,4 @@ crashlytics-build.properties
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 /.idea
+ProjectSettings/Packages/dev.yarnspinner/Assembly-CSharp-generated.ysls.json

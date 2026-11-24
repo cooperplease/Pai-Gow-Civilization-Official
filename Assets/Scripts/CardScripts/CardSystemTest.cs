@@ -22,9 +22,9 @@ public class CardSystemTest : MonoBehaviour
         {
             collection.Add(chuddyCard);
         }
-        CardPlayerData playerData = new CardPlayerData(collection, "chuddy1");
-        CardPlayerData playerData2 = new CardPlayerData(collection, "chuddy2");
-        CardPlayer player1 = new CardPlayer(playerData);
+        CardPlayerData playerData = new CardPlayerData(collection, "Human");
+        CardPlayerData playerData2 = new CardPlayerData(collection, "Chuddy");
+        CardPlayer player1 = new HumanCardPlayer(playerData,playingArea);
         CardPlayer player2 = new CardPlayer(playerData2);
         cardGameManager = new CardGameManager(player1, player2,playingArea);
         StartTest();
