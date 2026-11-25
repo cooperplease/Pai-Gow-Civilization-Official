@@ -9,6 +9,7 @@ public class CardPlayer
 {
     //player stats
     public readonly String name;
+    public readonly String cpuType;
     public int life { get; private set; }
     List<CardData> collection = new List<CardData>();
     
@@ -16,11 +17,27 @@ public class CardPlayer
     public CardZone inPlay;
     public CardZone graveyard;
     public CardPlayer opponent;
+    
+    public static readonly List<string> CpuTypes = new List<string>
+    {
+        "Basic",
+        "Competitive",
+        "Airhead"
+    }
+    
 
     public CardPlayer(CardPlayerData data)
     {
         collection = data.collection;
         name = data.name;
+        
+        //randomize 
+        cpuType = CpuTypes[UnityEngine.Random.Range(0, CpuTypes.Count)];
+    }
+
+    public static string GetRandomCpuTypes()
+    {
+        int index = UnityEngine.Random.Range(0, CpuTypes.Count);
     }
 
     public void SetLife(int value)

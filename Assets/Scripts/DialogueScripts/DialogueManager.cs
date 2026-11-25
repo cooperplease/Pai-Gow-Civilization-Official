@@ -43,6 +43,7 @@ public class DialogueManager : MonoBehaviour
         if(col.gameObject.TryGetComponent<InteractDialogueData>(out InteractDialogueData data))
         {
             if (!DialogueEvents.IsDialogueActive) DialogueEvents.RequestDialogue(data.dialogueStartNode);
+
         }
     }
 

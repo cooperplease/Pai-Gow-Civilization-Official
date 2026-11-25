@@ -17,7 +17,7 @@ public class CardData
     
     public readonly List<Keywords> keywords;
     public readonly List<TriggerData> abilities;
-    
+     
     public CardData(String name, String description, String flavorText, int power, int toughness, Sprite art, List<TriggerData> abilities = null, List<Keywords>  keywords = null)
     {
         this.art = art;
@@ -165,4 +165,5 @@ public class Card
     {
         foreach(Trigger trigger in abilities) trigger.RemoveTrigger(roundManager.triggerEventSystem);
     }
+    
 }
