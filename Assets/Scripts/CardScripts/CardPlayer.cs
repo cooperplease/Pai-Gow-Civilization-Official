@@ -112,7 +112,7 @@ public class CardPlayer
 
     public virtual async Task<Dictionary<Card,Card>> AssignBlockers(List<Card> attackers, List<Card> defenders)
     {
-        if (attackers.Count<1 || defenders.Count < 1) return new Dictionary<Card, Card>();
+        if (attackers.Count <1 || defenders.Count < 1) return new Dictionary<Card, Card>();
         Dictionary<Card, Card> blocks = new Dictionary<Card, Card>();
         
         foreach (Card blocker in defenders)
@@ -122,9 +122,9 @@ public class CardPlayer
             {
                 if(!(attacker.cardData.keywords.Contains(Keywords.TUNNEL)&&!blocker.cardData.keywords.Contains(Keywords.TUNNEL))) EligibleAttackers.Add(attacker);
             }
-
-            Card blockee = (await ChooseUpToXCardsFromList(1, EligibleAttackers))[0];
-            blocks.Add(blocker, blockee);
+            
+            List<Card> blockee = (await ChooseUpToXCardsFromList(1, EligibleAttackers));
+            if (blockee!=null && blockee.Count>0) blocks.Add(blocker, blockee[0]);
         }
         return blocks;
     }
