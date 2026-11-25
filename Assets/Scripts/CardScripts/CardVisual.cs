@@ -53,7 +53,16 @@ public class CardVisual : MonoBehaviour
     void SetStats()
     {
         cardName.text = card.cardData.name;
-        cardDescription.text = card.cardData.description;
+        String descriptionText = "";
+        foreach (Keywords keyword in card.cardData.keywords)
+        {
+            descriptionText += keyword.ToString();
+            descriptionText += " ";
+        }
+
+        descriptionText += '\n';
+        descriptionText += card.cardData.description;
+        cardDescription.text = descriptionText;
         stats.text = card.cardData.power + "/" + card.cardData.toughness + "";
         if(card.cardData.art!=null) art.sprite = card.cardData.art;
     }
