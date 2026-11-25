@@ -104,6 +104,30 @@ public class CardPlayer
         await Awaitable.WaitForSecondsAsync(1f);
         return cards.GetRange(0,x);
     }
+
+    public virtual async Task<Card> HighlightFromList(List<Card> cards)
+    {
+        return (await ChooseUpToXCardsFromList(1, cards))[0];
+    }
+
+    public virtual async Task<Dictionary<Card,Card>> AssignBlockers(List<Card> attackers, List<Card> defenders)
+    {
+        if (attackers.Count<1 || defenders.Count < 1) return new Dictionary<Card, Card>();
+        Dictionary<Card, Card> blocks = new Dictionary<Card, Card>();
+        
+        foreach (Card blocker in defenders)
+        {
+            List<Card> EligibleAttackers = new List<Card>();
+            foreach (Card attacker in attackers)
+            {
+                if(!(attacker.cardData.keywords.Contains(Keywords.TUNNEL)&&!blocker.cardData.keywords.Contains(Keywords.TUNNEL))) EligibleAttackers.Add(attacker);
+            }
+
+            Card blockee = (await ChooseUpToXCardsFromList(1, EligibleAttackers))[0];
+            blocks.Add(blocker, blockee);
+        }
+        return blocks;
+    }
 }
 
 public class CardPlayerData

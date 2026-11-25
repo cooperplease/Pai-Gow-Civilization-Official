@@ -115,6 +115,7 @@ public class RoundManager
 
     public async Task<CardPlayer> StartRound()
     {
+        playingArea?.Reset();
         ReadyPlayers();
         List<Card> deck1 = CreateDeck(player1Deck,player1,player1.hand);
         List<Card> deck2 = CreateDeck(player2Deck,player2,player2.hand);
@@ -390,7 +391,7 @@ public class RoundManager
                 totalDealtByBlockers += blocker.cardData.power;
             }
 
-            if (totalPower > 0 && attacker.cardData.keywords.Contains(Keywords.TRAMPLE))
+            if (totalPower > 0 && attacker.cardData.keywords.Contains(Keywords.POWERTHROUGH))
             {
                 damageData.Add(new DamageData(attacker, null, activePlayer.opponent, totalPower));
             }

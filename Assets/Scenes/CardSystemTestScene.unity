@@ -320,6 +320,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardSystemTest
   playingArea: {fileID: 1047083799}
+  csv: {fileID: 4900000, guid: 081f4d5edcef44d85b24386636d4994f, type: 3}
+  cardArtFolderPath: CardArt
 --- !u!4 &1083753383
 Transform:
   m_ObjectHideFlags: 0

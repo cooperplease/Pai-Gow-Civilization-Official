@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Keywords { FLASH, HASTE, FLYING, VIGILANCE, INDESTRUCTABLE, TRAMPLE}
+public enum Keywords { FLASH, QUICK, TUNNEL, VIGILANCE, INDESTRUCTABLE, POWERTHROUGH}
 public enum FoilTreatment {REGULAR, FOIL, ULTRAFOIL}
 
 public class CardData

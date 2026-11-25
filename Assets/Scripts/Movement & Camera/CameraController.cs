@@ -12,6 +12,9 @@ public class CameraController : MonoBehaviour, Controls.IPlayerActions
 
     private Vector2 mouseLook;
     private Vector2 smoothV;
+    
+    private bool playingCards = false;
+    private GameObject cards;
 
     private void Awake()
     {
@@ -25,6 +28,17 @@ public class CameraController : MonoBehaviour, Controls.IPlayerActions
         {
             _controls.Player.Enable();
         }
+    }
+
+    public void PlayCards(GameObject cards)
+    {
+        playingCards = true;
+        this.cards = cards;
+    }
+
+    public void StopCards()
+    {
+        playingCards = false;
     }
 
     private void OnDisable()
@@ -50,6 +64,12 @@ public class CameraController : MonoBehaviour, Controls.IPlayerActions
     private void Update()
     {
         if (character == null) return;
+        if (playingCards)
+        {
+            Quaternion target = Quaternion.LookRotation((cards.transform.position - new Vector3(0,5,0)) - transform.position);
+            transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * 5f);
+            return;
+        }
 
         Vector2 md = _lookInput * (sensitivity / 10);
 

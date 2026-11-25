@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Threading.Tasks;
+using UnityEngine;
+using Yarn.Unity;
+
+public class Milestone1CardSystemDemo : MonoBehaviour
+{
+    public PlayingAreaVisual playingArea;
+    public CardGameManager cardGameManager;
+    public PlayerController player;
+    public GameObject playerPos;
+
+    public TextAsset csv;
+
+    public String cardArtFolderPath;
+    
+    CardDataLoader cardDataLoader;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        cardDataLoader = new CardDataLoader(csv,cardArtFolderPath);
+        
+        TriggerData UpkeepGain3life = new TriggerData("UpkeepStep",
+            new Conditional(new InZone(new ThisCard(), CardZone.ZoneType.INPLAY),new Conditional(new OwnerIsActivePlayer(new ThisCard()),new ChangeLife(new Owner(), 3))));
+        CardData chuddyCard = new CardData("chuddy","this card is a basic 1/1 chud nvm I have HASTE!","oops, I am a chud - chud", 1,1,null,new List<TriggerData>(){UpkeepGain3life},new List<Keywords>
+        {
+            Keywords.QUICK, Keywords.POWERTHROUGH
+        });
+        List<CardData> collection = new List<CardData>();
+        for (int i = 0; i < 6; i++)
+        {
+            collection.Add(cardDataLoader.cardDatabase["Jonesey the Dog"]);
+            collection.Add(cardDataLoader.cardDatabase["Hammond Banks"]);
+        }
+        CardPlayerData playerData = new CardPlayerData(collection, "Human");
+        CardPlayerData playerData2 = new CardPlayerData(collection, "Chuddy");
+        CardPlayer player1 = new HumanCardPlayer(playerData,playingArea);
+        CardPlayer player2 = new CardPlayer(playerData2);
+        cardGameManager = new CardGameManager(player1, player2,playingArea);
+        //StartTest();
+
+    }
+    [YarnCommand("start_test_game")]
+    public void StartGame()
+    {
+        StartTest();
+        player.transform.position = playerPos.transform.position;
+        player.PlayCards(this.gameObject);
+    }
+    async Task StartTest()
+    {
+        try
+        {
+            await cardGameManager.StartGame();
+        }
+        catch(Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}

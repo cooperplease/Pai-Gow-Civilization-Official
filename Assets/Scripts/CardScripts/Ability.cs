@@ -117,7 +117,7 @@ public class AssignBlockers : Ability
 {
     public override async Task Activate(EffectContext source)
     {
-        Dictionary<Card,Card> Blocks =  new Dictionary<Card,Card>();
+        Dictionary<Card,Card> Blocks = new Dictionary<Card,Card>();
         
         CardPlayer player = source.roundManager.activePlayer.opponent;
         List<Card> attackingCards = new List<Card>();
@@ -133,16 +133,8 @@ public class AssignBlockers : Ability
                 potentialBlockers.Add(card);
             }
         }
-        foreach (Card card in potentialBlockers)
-        {
-            List<Card> EligibleAttackers = new List<Card>();
-            foreach (Card card2 in attackingCards)
-            {
-                if(!(card2.cardData.keywords.Contains(Keywords.FLYING)&&!card.cardData.keywords.Contains(Keywords.FLYING))) EligibleAttackers.Add(card2);
-            }
-            List<Card> cardToBlock = (await player.ChooseUpToXCardsFromList(1,EligibleAttackers));
-            if(cardToBlock!=null&&cardToBlock.Count == 1) Blocks.Add(card, cardToBlock[0]);
-        }
+        Blocks = await player.AssignBlockers(attackingCards,potentialBlockers);
+        
         foreach (Card card in Blocks.Keys)
         {
             await source.roundManager.AssignBlock(card,Blocks[card]);

@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour, Controls.IPlayerActions
 
     private Controls _controls;
     private Vector2 _moveInput;
+    private bool playingCards = false;
+    public CameraController cameraController;
 
     [SerializeField] private Rigidbody _rb;
 
@@ -15,6 +17,21 @@ public class PlayerController : MonoBehaviour, Controls.IPlayerActions
     {
         _controls = new Controls();
         _controls.Player.SetCallbacks(this);
+    }
+
+    public void PlayCards(GameObject cards)
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        playingCards = true;
+        cameraController.PlayCards(cards);
+    }
+
+    public void StopCards()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        playingCards = false;
     }
 
     private void OnEnable()
@@ -29,6 +46,7 @@ public class PlayerController : MonoBehaviour, Controls.IPlayerActions
 
     void Update()
     {
+        if (playingCards) return;
         Vector3 movement = new Vector3(_moveInput.x, 0f, _moveInput.y);
         if(movement.sqrMagnitude > 1f)
         {

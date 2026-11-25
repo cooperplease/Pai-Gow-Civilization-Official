@@ -78,7 +78,7 @@ public class ChooseAttackers : CardSelector
         List<Card> options = new List<Card>();
         foreach (Card card in player.inPlay.cards)
         {
-            if(!card.state.tapped &&(!card.state.summoningSick || card.cardData.keywords.Contains(Keywords.HASTE)))
+            if(!card.state.tapped &&(!card.state.summoningSick || card.cardData.keywords.Contains(Keywords.QUICK)))
             {
                 options.Add(card);
             }
