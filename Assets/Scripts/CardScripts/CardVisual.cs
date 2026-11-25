@@ -15,6 +15,7 @@ public class CardVisual : MonoBehaviour
     public TextMeshProUGUI cardName;
     public TextMeshProUGUI cardDescription;
     public TextMeshProUGUI stats;
+    public TextMeshProUGUI flavorText;
     
     public CardZone currentZone;
     public Collider col; 
@@ -53,9 +54,22 @@ public class CardVisual : MonoBehaviour
     void SetStats()
     {
         cardName.text = card.cardData.name;
-        cardDescription.text = card.cardData.description;
-        stats.text = card.cardData.power + "/" + card.cardData.toughness + "";
+        
+        String descriptionText = "";
+        foreach (Keywords keyword in card.cardData.keywords)
+        {
+            descriptionText += keyword.ToString();
+            descriptionText += " ";
+        }
+        descriptionText += '\n';
+        descriptionText += card.cardData.description;
+        descriptionText += '\n';
+        descriptionText += "<i>"+card.cardData.flavorText+"</i>";
+        descriptionText += '\n';
+        descriptionText += "<size=150%><align=right>"+card.cardData.power + "/" + card.cardData.toughness + "";
+        cardDescription.text = descriptionText;
         if(card.cardData.art!=null) art.sprite = card.cardData.art;
+        
     }
     
     void UpdateZone()
