@@ -21,12 +21,16 @@ public class PlayerController : MonoBehaviour, Controls.IPlayerActions
 
     public void PlayCards(GameObject cards)
     {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         playingCards = true;
         cameraController.PlayCards(cards);
     }
 
     public void StopCards()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         playingCards = false;
     }
 

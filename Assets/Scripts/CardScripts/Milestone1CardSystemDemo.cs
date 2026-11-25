@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using UnityEngine;
+using Yarn.Unity;
 
 public class Milestone1CardSystemDemo : MonoBehaviour
 {
     public PlayingAreaVisual playingArea;
     public CardGameManager cardGameManager;
+    public PlayerController player;
+    public GameObject playerPos;
 
     public TextAsset csv;
 
@@ -36,11 +39,17 @@ public class Milestone1CardSystemDemo : MonoBehaviour
         CardPlayer player1 = new HumanCardPlayer(playerData,playingArea);
         CardPlayer player2 = new CardPlayer(playerData2);
         cardGameManager = new CardGameManager(player1, player2,playingArea);
-        StartTest();
+        //StartTest();
 
     }
-    
-    public async Task StartTest()
+    [YarnCommand("start_test_game")]
+    public void StartGame()
+    {
+        StartTest();
+        player.transform.position = playerPos.transform.position;
+        player.PlayCards(this.gameObject);
+    }
+    async Task StartTest()
     {
         try
         {

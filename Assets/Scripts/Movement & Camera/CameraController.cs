@@ -63,11 +63,11 @@ public class CameraController : MonoBehaviour, Controls.IPlayerActions
 
     private void Update()
     {
-       
         if (character == null) return;
         if (playingCards)
         {
-            transform.LookAt(cards.transform);
+            Quaternion target = Quaternion.LookRotation((cards.transform.position - new Vector3(0,5,0)) - transform.position);
+            transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * 5f);
             return;
         }
 

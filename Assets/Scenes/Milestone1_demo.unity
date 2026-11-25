@@ -268,6 +268,39 @@ Transform:
   - {fileID: 400685888}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &268063384 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3869995924502957912, guid: 2d78198be59874782b47304954b9eb18, type: 3}
+  m_PrefabInstance: {fileID: 1786127435}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &268063385 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3630744129321646103, guid: 2d78198be59874782b47304954b9eb18, type: 3}
+  m_PrefabInstance: {fileID: 1786127435}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268063384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38cd855f8b6cb45479e0639572c16c40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayingAreaVisual
+--- !u!114 &268063387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268063384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f635b4d7731c45cebc5d87b538c2529, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Milestone1CardSystemDemo
+  playingArea: {fileID: 268063385}
+  player: {fileID: 740841122}
+  playerPos: {fileID: 597301348}
+  csv: {fileID: 4900000, guid: 081f4d5edcef44d85b24386636d4994f, type: 3}
+  cardArtFolderPath: CardArt
 --- !u!1 &385021642
 GameObject:
   m_ObjectHideFlags: 0
@@ -607,6 +640,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 505301711}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &597301348
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 597301349}
+  m_Layer: 0
+  m_Name: playerPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &597301349
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 597301348}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.7, y: 7.5, z: -17.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &629139416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -957,6 +1021,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   speed: 50
+  cameraController: {fileID: 1773048902}
   _rb: {fileID: 740841120}
 --- !u!114 &740841123
 MonoBehaviour:
@@ -1038,7 +1103,7 @@ Transform:
   m_GameObject: {fileID: 740841118}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.66, y: 1.11, z: 0.36}
+  m_LocalPosition: {x: 3.66, y: 11.1, z: 0.36}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1062,7 +1127,7 @@ GameObject:
   - component: {fileID: 1050219799}
   - component: {fileID: 1050219798}
   m_Layer: 0
-  m_Name: Angry Chuddy
+  m_Name: AngryChuddy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1115,6 +1180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractDialogueData
   dialogueStartNode: AngryChuddyStart
+  active: 1
 --- !u!227 &1050219801
 BillboardRenderer:
   m_ObjectHideFlags: 0
@@ -1252,7 +1318,7 @@ Transform:
   m_GameObject: {fileID: 1050219797}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7093193, z: -0, w: 0.7048874}
-  m_LocalPosition: {x: 2.1, y: 8.58, z: 21.1}
+  m_LocalPosition: {x: 4.4, y: 10.9, z: 23.9}
   m_LocalScale: {x: 30, y: 30, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1646,7 +1712,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3869995924502957912, guid: 2d78198be59874782b47304954b9eb18, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 268063387}
   m_SourcePrefab: {fileID: 100100000, guid: 2d78198be59874782b47304954b9eb18, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -1658,3 +1727,4 @@ SceneRoots:
   - {fileID: 740841125}
   - {fileID: 629139416}
   - {fileID: 1786127435}
+  - {fileID: 597301349}
