@@ -21,9 +21,17 @@ public class PlayingAreaVisual : MonoBehaviour
     public Button submitButton;
     public Canvas submitButtonCanvas;
     bool readyToSubmit = false;
-    List<Card> selectedCards = new List<Card>();
+    List<CardVisual> selectedCardVisuals = new List<CardVisual>();
     private int max_cards;
     private int min_cards;
+    private Card highlightedCard;
+    private Mode mode;
+
+    enum Mode
+    {
+        HIGHLIGHTING,
+        SELECTING
+    }
 
     void Start()
     {
@@ -40,8 +48,9 @@ public class PlayingAreaVisual : MonoBehaviour
 
     public async Task<List<Card>> ChooseRangeOfCardsFromList(int min, int max, List<Card> selectableCards)
     {
+        mode = Mode.HIGHLIGHTING;
         submitButtonCanvas.enabled = true;
-        selectedCards.Clear();
+        selectedCardVisuals.Clear();
         readyToSubmit = false;
         this.min_cards = min;
         this.max_cards = max;
@@ -70,39 +79,111 @@ public class PlayingAreaVisual : MonoBehaviour
             }
         }
         submitButtonCanvas.enabled = false;
-        return selectedCards;
+        
+        List<Card> SelectedCards = new List<Card>();
+        foreach (CardVisual card in selectedCardVisuals) SelectedCards.Add(card.card);
+        return SelectedCards;
     }
 
     public void CardClicked(CardVisual card)
     {
-        if (!selectedCards.Contains(card.card))
+        if (!selectedCardVisuals.Contains(card))
         {
-            if (max_cards > selectedCards.Count)
+            if (max_cards > selectedCardVisuals.Count)
             {
-                selectedCards.Add(card.card);
+                selectedCardVisuals.Add(card);
                 card.SetSelected(true);
             }
             else
             {
-                Debug.Log("Can't select that many cards!");
+                CardVisual unselected = selectedCardVisuals[0];
+                selectedCardVisuals.Remove(unselected);
+                unselected.SetSelected(false);
+                
+                selectedCardVisuals.Add(card);
+                card.SetSelected(true);
             }
         }
         else
         {
-            selectedCards.Remove(card.card);
+            selectedCardVisuals.Remove(card);
             card.SetSelected(false);
         }
+    }
+    
+    public void CardHighlighted(CardVisual card)
+    {
+        highlightedCard = card.card;
+        readyToSubmit = true;
     }
 
     public void TrySubmitSelections()
     {
-        if (selectedCards.Count >= min_cards && selectedCards.Count <= max_cards)
+        switch (mode)
         {
-            readyToSubmit = true;
+            case Mode.SELECTING:
+                if (selectedCardVisuals.Count >= min_cards && selectedCardVisuals.Count <= max_cards)
+                    {
+                        readyToSubmit = true;
+                    }
+                        else
+                    {
+                        Debug.Log("Can't submit selection");
+                    }
+                break;
+            case Mode.HIGHLIGHTING:
+                readyToSubmit = true;
+                break;
+            default:
+                break;
         }
-        else
+    }
+
+    public async Task<Card> HighlightCardFromList(List<Card> selectableCards)
+    {
+        submitButtonCanvas.enabled = true;
+        mode = Mode.HIGHLIGHTING;
+        readyToSubmit = false;
+        highlightedCard = null;
+        foreach (CardVisual card in cards)
         {
-            Debug.Log("Can't submit selection");
+            if (selectableCards.Contains(card.card))
+            {
+                card.SetSelectable(true);
+                card.selectCallback += CardHighlighted;
+            }
         }
+
+        while (!readyToSubmit)
+        {
+            await Task.Yield();
+        }
+        
+        foreach (CardVisual card in cards)
+        {
+            if (selectableCards.Contains(card.card))
+            {
+                card.SetSelectable(false);
+                card.selectCallback -= CardHighlighted;
+            }
+        }
+
+        submitButtonCanvas.enabled = false;
+        return highlightedCard;
+    }
+
+    public void Reset()
+    {
+        foreach (CardVisual card in cards)
+        {
+            Destroy(card.gameObject);
+        }
+        player1Battlefield.cards.Clear();
+        player2Battlefield.cards.Clear();
+        player1Battlefield.cards.Clear();
+        player2Battlefield.cards.Clear();
+        player1Graveyard.cards.Clear();
+        player2Graveyard.cards.Clear();
+        cards.Clear();
     }
 }

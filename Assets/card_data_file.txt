@@ -1,0 +1,3 @@
+Hammond Banks		1	2		“Coins, coins, coins, oh how they fill the belly and the heart!”	capybara
+Cecilia Harper		2	1		In a way, if you think about it (but not too hard), some say it might be true.”	capybara
+Jonesey the Dog	TUNNEL	1	1		“Most prefer to use animals as card fodder these days, but Old Man tries his best to take good care of me”	capybara
