@@ -15,8 +15,10 @@ public class PlayingAreaVisual : MonoBehaviour
     public CardZoneVisual player2Graveyard;
     
     public GameObject CardVisualPrefab;
+    public GameObject TargetingArrowPrefab;
     
     public List<CardVisual> cards;
+    public List<TargetingVisual> targetingVisuals = new List<TargetingVisual>();
     
     public Button submitButton;
     public Canvas submitButtonCanvas;
@@ -170,6 +172,36 @@ public class PlayingAreaVisual : MonoBehaviour
 
         submitButtonCanvas.enabled = false;
         return highlightedCard;
+    }
+
+    public void DisplayBlocks(Dictionary<Card, Card> blocks)
+    {
+        ClearBlocks();
+        foreach (Card card in blocks.Keys)
+        {
+            GameObject arrow = GameObject.Instantiate(TargetingArrowPrefab);
+            TargetingVisual arrowComponent = arrow.GetComponent<TargetingVisual>();
+            arrowComponent.Setup(GetCardVisual(card), GetCardVisual(blocks[card]));
+            targetingVisuals.Add(arrowComponent);
+        }
+    }
+
+    public void ClearBlocks()
+    {
+        foreach (TargetingVisual target in targetingVisuals)
+        {
+            Destroy(target.gameObject);
+        }
+        targetingVisuals.Clear();
+    }
+
+    public CardVisual GetCardVisual(Card card)
+    {
+        foreach (CardVisual cardVisual in cards)
+        {
+            if(cardVisual.card == card) return cardVisual;
+        }
+        return null;
     }
 
     public void Reset()

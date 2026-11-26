@@ -127,7 +127,7 @@ public class CardVisual : MonoBehaviour
             }
         }
         
-        canvas.transform.rotation = Quaternion.Slerp(canvas.transform.rotation, goalRot, rotationSnapiness);
+        transform.rotation = Quaternion.Slerp(transform.rotation, goalRot, rotationSnapiness);
     }
 
     public void UpdatePosition()

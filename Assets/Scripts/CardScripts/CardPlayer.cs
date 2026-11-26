@@ -124,7 +124,25 @@ public class CardPlayer
             }
             
             List<Card> blockee = (await ChooseUpToXCardsFromList(1, EligibleAttackers));
-            if (blockee!=null && blockee.Count>0) blocks.Add(blocker, blockee[0]);
+            if (blockee!=null && blockee.Count>0)
+            {
+                if (blocks.ContainsKey(blocker))
+                {
+                    if (blocks[blocker] == blockee[0])
+                    {
+                        blocks.Remove(blocker);
+                    }
+                    else
+                    {
+                        blocks[blocker] = blockee[0];
+                    }
+                }
+                else
+                {
+                    blocks.Add(blocker, blockee[0]);
+                }
+               
+            }
         }
         return blocks;
     }

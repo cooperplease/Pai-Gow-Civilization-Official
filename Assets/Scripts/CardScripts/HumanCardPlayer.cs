@@ -29,6 +29,7 @@ public class HumanCardPlayer : CardPlayer
         Dictionary<Card, Card> Blocks = new Dictionary<Card, Card>();
         while (true)
         {
+            visual.DisplayBlocks(Blocks);
             Card defender = await HighlightFromList(defenders);
             if (defender == null) break;
             
@@ -50,6 +51,7 @@ public class HumanCardPlayer : CardPlayer
                 Blocks.Add(defender, blockee);
             }
         }
+        visual.ClearBlocks();
         return Blocks;
     }
 }
