@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
@@ -106,17 +107,18 @@ public class CardVisual : MonoBehaviour
     public void UpdateRotation()
     {
         Quaternion goalRot = baseRot;
+        quaternion canvasGoalRot = Quaternion.identity;
         
         if (hovered)
         {
-            goalRot = Quaternion.LookRotation(mainCam.transform.forward,mainCam.transform.up);
+            canvasGoalRot = Quaternion.LookRotation(mainCam.transform.up,-mainCam.transform.forward);
             if (Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))
             {
                 Vector3 localPoint = hit.transform.InverseTransformPoint(hit.point);
                 
                 float x_rot = -localPoint.y;
                 float y_rot = -localPoint.x;
-                goalRot *= Quaternion.Euler(-x_rot*hoverRotationAmount, y_rot*hoverRotationAmount, 0);
+                canvasGoalRot *= Quaternion.Euler(-x_rot*hoverRotationAmount, y_rot*hoverRotationAmount, 0);
             }
         }
         else
@@ -128,6 +130,7 @@ public class CardVisual : MonoBehaviour
         }
         
         transform.rotation = Quaternion.Slerp(transform.rotation, goalRot, rotationSnapiness);
+        canvas.transform.localRotation = Quaternion.Slerp(canvas.transform.localRotation, canvasGoalRot, rotationSnapiness);
     }
 
     public void UpdatePosition()
