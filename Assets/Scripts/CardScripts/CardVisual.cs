@@ -179,6 +179,7 @@ public class CardVisual : MonoBehaviour
     void OnMouseOver()
     {
         hovered = true;
+        canvas.sortingOrder = 1;
     }
 
     private void OnMouseDown()
@@ -193,5 +194,6 @@ public class CardVisual : MonoBehaviour
     void OnMouseExit()
     {
         hovered = false;
+        canvas.sortingOrder = 0;
     }
 }
